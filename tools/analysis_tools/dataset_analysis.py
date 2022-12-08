@@ -12,6 +12,7 @@ from prettytable import PrettyTable
 
 from mmyolo.registry import DATASETS
 from mmyolo.utils import register_all_modules
+from mmyolo.utils.misc import show_data_classes
 
 
 def parse_args():
@@ -61,12 +62,12 @@ def show_bbox_num(cfg, args, fig_set, class_name, class_num):
     print('\n\nDrawing bbox_num figure:')
     # Draw designs
     fig = plt.figure(
-        figsize=(fig_set['figsize'][0], fig_set['figsize'][1]), dpi=600)
+        figsize=(fig_set['figsize'][0], fig_set['figsize'][1]), dpi=300)
     plt.bar(class_name, class_num, align='center')
 
     # Draw titles, labels and so on
     for x, y in enumerate(class_num):
-        plt.text(x, y, '%s' % y, ha='center', fontsize=fig_set['fontsize'])
+        plt.text(x, y, '%s' % y, ha='center', fontsize=fig_set['fontsize'] + 3)
     plt.xticks(rotation=fig_set['xticks_angle'])
     plt.xlabel('Category Name')
     plt.ylabel('Num of instances')
@@ -77,7 +78,10 @@ def show_bbox_num(cfg, args, fig_set, class_name, class_num):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     out_name = fig_set['out_name']
-    fig.savefig(f'{out_dir}/{out_name}_bbox_num.jpg')  # Save Image
+    fig.savefig(
+        f'{out_dir}/{out_name}_bbox_num.jpg',
+        bbox_inches='tight',
+        pad_inches=0.1)  # Save Image
     plt.close()
     print(f'End and save in {out_dir}/{out_name}_bbox_num.jpg')
 
@@ -88,7 +92,7 @@ def show_bbox_wh(args, fig_set, class_bbox_w, class_bbox_h, class_name):
     print('\n\nDrawing bbox_wh figure:')
     # Draw designs
     fig, ax = plt.subplots(
-        figsize=(fig_set['figsize'][0], fig_set['figsize'][1]), dpi=600)
+        figsize=(fig_set['figsize'][0], fig_set['figsize'][1]), dpi=300)
 
     # Set the position of the map and label on the x-axis
     positions_w = list(range(0, 12 * len(class_name), 12))
@@ -165,7 +169,10 @@ def show_bbox_wh(args, fig_set, class_bbox_w, class_bbox_h, class_name):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     out_name = fig_set['out_name']
-    fig.savefig(f'{out_dir}/{out_name}_bbox_wh.jpg')  # Save Image
+    fig.savefig(
+        f'{out_dir}/{out_name}_bbox_wh.jpg',
+        bbox_inches='tight',
+        pad_inches=0.1)  # Save Image
     plt.close()
     print(f'End and save in {out_dir}/{out_name}_bbox_wh.jpg')
 
@@ -176,7 +183,7 @@ def show_bbox_wh_ratio(args, fig_set, class_name, class_bbox_ratio):
     print('\n\nDrawing bbox_wh_ratio figure:')
     # Draw designs
     fig, ax = plt.subplots(
-        figsize=(fig_set['figsize'][0], fig_set['figsize'][1]), dpi=600)
+        figsize=(fig_set['figsize'][0], fig_set['figsize'][1]), dpi=300)
 
     # Set the position of the map and label on the x-axis
     positions = list(range(0, 6 * len(class_name), 6))
@@ -222,7 +229,10 @@ def show_bbox_wh_ratio(args, fig_set, class_name, class_bbox_ratio):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     out_name = fig_set['out_name']
-    fig.savefig(f'{out_dir}/{out_name}_bbox_ratio.jpg')  # Save Image
+    fig.savefig(
+        f'{out_dir}/{out_name}_bbox_ratio.jpg',
+        bbox_inches='tight',
+        pad_inches=0.1)  # Save Image
     plt.close()
     print(f'End and save in {out_dir}/{out_name}_bbox_ratio.jpg')
 
@@ -240,7 +250,7 @@ def show_bbox_area(args, fig_set, area_rule, class_name, bbox_area_num):
 
     # Draw designs
     fig = plt.figure(
-        figsize=(fig_set['figsize'][0], fig_set['figsize'][1]), dpi=600)
+        figsize=(fig_set['figsize'][0], fig_set['figsize'][1]), dpi=300)
     for i in range(len(area_rule) - 1):
         area_num = [bbox_area_num[idx][i] for idx in range(len(class_name))]
         plt.bar(
@@ -251,7 +261,11 @@ def show_bbox_area(args, fig_set, area_rule, class_name, bbox_area_num):
             color=colors[i])
         for idx, (x, y) in enumerate(zip(positions.tolist(), area_num)):
             plt.text(
-                x + width * i, y, y, ha='center', fontsize=fig_set['fontsize'])
+                x + width * i,
+                y,
+                y,
+                ha='center',
+                fontsize=fig_set['fontsize'] - 1)
 
     # Draw titles, labels and so on
     plt.xticks(rotation=fig_set['xticks_angle'])
@@ -276,7 +290,10 @@ def show_bbox_area(args, fig_set, area_rule, class_name, bbox_area_num):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     out_name = fig_set['out_name']
-    fig.savefig(f'{out_dir}/{out_name}_bbox_area.jpg')  # Save Image
+    fig.savefig(
+        f'{out_dir}/{out_name}_bbox_area.jpg',
+        bbox_inches='tight',
+        pad_inches=0.1)  # Save Image
     plt.close()
     print(f'End and save in {out_dir}/{out_name}_bbox_area.jpg')
 
@@ -331,29 +348,6 @@ def show_data_list(args, area_rule):
     print(data_info)
 
 
-def show_dataset_classes(dataset_classes):
-    """When printing an error, all class names of the dataset."""
-    print('\n\nThe name of the class contained in the dataset:')
-    data_classes_info = PrettyTable()
-    data_classes_info.title = 'Information of dataset class'
-    # List Print Settings
-    # If the quantity is too large, 25 rows will be displayed in each column
-    if len(dataset_classes) < 25:
-        data_classes_info.add_column('Class name', dataset_classes)
-    elif len(dataset_classes) % 25 != 0 and len(dataset_classes) > 25:
-        col_num = int(len(dataset_classes) / 25) + 1
-        data_name_list = list(dataset_classes)
-        for i in range(0, (col_num * 25) - len(dataset_classes)):
-            data_name_list.append('')
-        for i in range(0, len(data_name_list), 25):
-            data_classes_info.add_column('Class name',
-                                         data_name_list[i:i + 25])
-
-    # Align display data to the left
-    data_classes_info.align['Class name'] = 'l'
-    print(data_classes_info)
-
-
 def main():
     args = parse_args()
     cfg = Config.fromfile(args.config)
@@ -361,18 +355,42 @@ def main():
     # register all modules in mmdet into the registries
     register_all_modules()
 
+    def replace_pipeline_to_none(cfg):
+        """Recursively iterate over all dataset(or datasets) and set their
+        pipelines to none.Datasets are mean ConcatDataset.
+
+        Recursively terminates only when all dataset(or datasets) have been
+        traversed
+        """
+
+        if cfg.get('dataset', None) is None and cfg.get('datasets',
+                                                        None) is None:
+            return
+        dataset = cfg.dataset if cfg.get('dataset', None) else cfg.datasets
+        if isinstance(dataset, list):
+            for item in dataset:
+                item.pipeline = None
+        elif dataset.get('pipeline', None):
+            dataset.pipeline = None
+        else:
+            replace_pipeline_to_none(dataset)
+
     # 1.Build Dataset
     if args.val_dataset is False:
+        replace_pipeline_to_none(cfg.train_dataloader)
         dataset = DATASETS.build(cfg.train_dataloader.dataset)
-    elif args.val_dataset is True:
+    else:
+        replace_pipeline_to_none(cfg.val_dataloader)
         dataset = DATASETS.build(cfg.val_dataloader.dataset)
 
-    data_list = dataset.load_data_list()
+    # Build  lists to store data for all raw data
+    data_list = dataset
+
     # 2.Prepare data
     # Drawing settings
     fig_all_set = {
-        'figsize': [45, 18],
-        'fontsize': 4,
+        'figsize': [35, 18],
+        'fontsize': int(10 - 0.08 * len(dataset.metainfo['CLASSES'])),
         'xticks_angle': 70,
         'out_name': cfg.dataset_type
     }
@@ -393,8 +411,8 @@ def main():
         classes_idx = [dataset.metainfo['CLASSES'].index(args.class_name)]
         fig_set = fig_one_set
     else:
-        dataset_classes = dataset.metainfo['CLASSES']
-        show_dataset_classes(dataset_classes)
+        data_classes = dataset.metainfo['CLASSES']
+        show_data_classes(data_classes)
         raise RuntimeError(f'Expected args.class_name to be one of the list,'
                            f'but got "{args.class_name}"')
 

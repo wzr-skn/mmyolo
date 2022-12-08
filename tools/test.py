@@ -4,15 +4,15 @@ import os
 import os.path as osp
 
 from mmdet.engine.hooks.utils import trigger_visualization_hook
-from mmdet.utils import add_dump_metric
 from mmengine.config import Config, DictAction
+from mmengine.evaluator import DumpResults
 from mmengine.runner import Runner
 
 from mmyolo.registry import RUNNERS
 from mmyolo.utils import register_all_modules
 
 
-# TODO: support fuse_conv_bn and format_only
+# TODO: support fuse_conv_bn
 def parse_args():
     parser = argparse.ArgumentParser(
         description='MMYOLO test (and eval) a model')
@@ -24,7 +24,13 @@ def parse_args():
     parser.add_argument(
         '--out',
         type=str,
-        help='dump predictions to a pickle file for offline evaluation')
+        help='output result file (must be a .pkl file) in pickle format')
+    parser.add_argument(
+        '--json-prefix',
+        type=str,
+        help='the prefix of the output json file without perform evaluation, '
+        'which is useful when you want to format the result to a specific '
+        'format and submit it to the test server')
     parser.add_argument(
         '--show', action='store_true', help='show prediction results')
     parser.add_argument(
@@ -92,11 +98,13 @@ def main():
     if args.deploy:
         cfg.custom_hooks.append(dict(type='SwitchToDeployHook'))
 
-    # Dump predictions
-    if args.out is not None:
-        assert args.out.endswith(('.pkl', '.pickle')), \
-            'The dump file must be a pkl file.'
-        add_dump_metric(args, cfg)
+    # add `format_only` and `outfile_prefix` into cfg
+    if args.json_prefix is not None:
+        cfg_json = {
+            'test_evaluator.format_only': True,
+            'test_evaluator.outfile_prefix': args.json_prefix
+        }
+        cfg.merge_from_dict(cfg_json)
 
     # build the runner from config
     if 'runner_type' not in cfg:
@@ -106,6 +114,13 @@ def main():
         # build customized runner from the registry
         # if 'runner_type' is set in the cfg
         runner = RUNNERS.build(cfg)
+
+    # add `DumpResults` dummy metric
+    if args.out is not None:
+        assert args.out.endswith(('.pkl', '.pickle')), \
+            'The dump file must be a pkl file.'
+        runner.test_evaluator.metrics.append(
+            DumpResults(out_file_path=args.out))
 
     # start testing
     runner.test()

@@ -10,9 +10,9 @@ conda activate open-mmlab
 conda install pytorch torchvision -c pytorch
 # conda install pytorch torchvision cpuonly -c pytorch
 pip install -U openmim
-mim install "mmengine>=0.3.0"
+mim install "mmengine>=0.3.1"
 mim install "mmcv>=2.0.0rc1,<2.1.0"
-mim install "mmdet>=3.0.0rc2,<3.1.0"
+mim install "mmdet>=3.0.0rc3,<3.1.0"
 git clone https://github.com/open-mmlab/mmyolo.git
 cd mmyolo
 # Install albumentations
@@ -30,7 +30,7 @@ mim install -v -e .
 本文选取不到 40MB 大小的 balloon 气球数据集作为 MMYOLO 的学习数据集。
 
 ```shell
-python tools/misc/download_dataset.py  --dataset-name balloon --save-dir data --unzip
+python tools/misc/download_dataset.py --dataset-name balloon --save-dir data --unzip
 python tools/dataset_converters/balloon2coco.py
 ```
 

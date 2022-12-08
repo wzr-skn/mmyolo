@@ -62,21 +62,23 @@ The master branch works with **PyTorch 1.6+**.
 
   MMYOLO decomposes the framework into different components where users can easily customize a model by combining different modules with various training and testing strategies.
 
-<img src="https://user-images.githubusercontent.com/27466624/190986949-01414a91-baae-4228-8828-c59db58dcf36.jpg" alt="BaseModule"/>
-  The figure is contributed by RangeKing@GitHub, thank you very much!
+<img src="https://user-images.githubusercontent.com/27466624/199999337-0544a4cb-3cbd-4f3e-be26-bcd9e74db7ff.jpg" alt="BaseModule-P5"/>
+  The figure above is contributed by RangeKing@GitHub, thank you very much!
+
+And the figure of P6 model is in [model_design.md](docs/en/algorithm_descriptions/model_design.md).
 
 </details>
 
 ## What's New
 
-💎 **v0.1.2** was released on 3/11/2022:
+💎 **v0.2.0** was released on 1/12/2022:
 
-1. Support [YOLOv5/YOLOv6/YOLOX/RTMDet deployments](https://github.com/open-mmlab/mmyolo/blob/main/configs/deploy) for ONNXRuntime and TensorRT
-2. Support [YOLOv6](https://github.com/open-mmlab/mmyolo/blob/main/configs/yolov6) s/t/n model training
-3. YOLOv5 supports [P6 model training which can input 1280-scale images](https://github.com/open-mmlab/mmyolo/blob/main/configs/yolov5)
-4. YOLOv5 supports [VOC dataset training](https://github.com/open-mmlab/mmyolo/blob/main/configs/yolov5/voc)
-5. Support [PPYOLOE](https://github.com/open-mmlab/mmyolo/blob/main/configs/ppyoloe) and [YOLOv7](https://github.com/open-mmlab/mmyolo/blob/main/configs/yolov7) model inference and official weight conversion
-6. Add YOLOv5 replacement [backbone tutorial](https://github.com/open-mmlab/mmyolo/blob/dev/docs/en/advanced_guides/how_to.md#use-backbone-network-implemented-in-other-openmmlab-repositories) in How-to documentation
+1. Support [YOLOv7](https://github.com/open-mmlab/mmyolo/tree/dev/configs/yolov7) P5 and P6 model
+2. Support [YOLOv6](https://github.com/open-mmlab/mmyolo/blob/dev/configs/yolov6/README.md) ML model
+3. Support [Grad-Based CAM and Grad-Free CAM](https://github.com/open-mmlab/mmyolo/blob/dev/demo/boxam_vis_demo.py)
+4. Support [large image inference](https://github.com/open-mmlab/mmyolo/blob/dev/demo/large_image_demo.py) based on sahi
+5. Add [easydeploy](https://github.com/open-mmlab/mmyolo/blob/dev/projects/easydeploy/README.md) project under the projects folder
+6. Add [custom dataset guide](https://github.com/open-mmlab/mmyolo/blob/dev/docs/zh_cn/user_guides/custom_dataset.md)
 
 For release history and update details, please refer to [changelog](https://mmyolo.readthedocs.io/en/latest/notes/changelog.html).
 
@@ -88,9 +90,9 @@ MMYOLO relies on PyTorch, MMCV, MMEngine, and MMDetection. Below are quick steps
 conda create -n open-mmlab python=3.8 pytorch==1.10.1 torchvision==0.11.2 cudatoolkit=11.3 -c pytorch -y
 conda activate open-mmlab
 pip install openmim
-mim install "mmengine>=0.3.0"
+mim install "mmengine>=0.3.1"
 mim install "mmcv>=2.0.0rc1,<2.1.0"
-mim install "mmdet>=3.0.0rc2,<3.1.0"
+mim install "mmdet>=3.0.0rc3,<3.1.0"
 git clone https://github.com/open-mmlab/mmyolo.git
 cd mmyolo
 # Install albumentations
@@ -116,6 +118,7 @@ For different parts from MMDetection, we have also prepared user guides and adva
   - [Useful Tools](https://mmdetection.readthedocs.io/en/latest/user_guides/index.html#useful-tools)
     - [Visualization](docs/en/user_guides/visualization.md)
     - [Useful Tools](docs/en/user_guides/useful_tools.md)
+    - [Custom Dataset](docs/en/user_guides/custom_dataset.md)
 
 - Algorithm description
 
@@ -135,6 +138,7 @@ For different parts from MMDetection, we have also prepared user guides and adva
 
   - [Data flow](docs/en/advanced_guides/data_flow.md)
   - [How to](docs/en/advanced_guides/how_to.md)
+  - [Plugins](docs/en/advanced_guides/plugins.md)
 
 ## Overview of Benchmark and Model Zoo
 
@@ -147,8 +151,8 @@ Results and models are available in the [model zoo](docs/en/model_zoo.md).
 - [x] [YOLOX](configs/yolox)
 - [x] [RTMDet](configs/rtmdet)
 - [x] [YOLOv6](configs/yolov6)
+- [x] [YOLOv7](configs/yolov7)
 - [ ] [PPYOLOE](configs/ppyoloe)(Inference only)
-- [ ] [YOLOv7](configs/yolov7)(Inference only)
 
 </details>
 
