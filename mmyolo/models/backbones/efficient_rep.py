@@ -61,7 +61,13 @@ class YOLOv6EfficientRep(BaseBackbone):
     # in_channels, out_channels, num_blocks, use_spp
     arch_settings = {
         'P5': [[64, 128, 6, False], [128, 256, 12, False],
-               [256, 512, 18, False], [512, 1024, 6, True]]
+               [256, 512, 18, False], [512, 1024, 6, True]],
+        'P5_no_spp': [[64, 128, 6, False], [128, 256, 12, False],
+                      [256, 512, 18, False], [512, 1024, 6, False]],
+        'P5_no_spp_shallow': [[64, 128, 3, False], [128, 256, 9, False],
+                              [256, 512, 9, False], [512, 1024, 3, False]],
+        'P5_no_spp_medium': [[64, 128, 3, False], [128, 256, 9, False],
+                              [256, 512, 12, False], [512, 1024, 6, False]]
     }
 
     def __init__(self,

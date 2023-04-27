@@ -3,7 +3,6 @@ import os
 import warnings
 from io import BytesIO
 
-import onnx
 import torch
 from mmdet.apis import init_detector
 from mmengine.config import ConfigDict
@@ -31,7 +30,7 @@ def parse_args():
         '--img-size',
         nargs='+',
         type=int,
-        default=[512, 928],
+        default=[576, 1024],
         help='Image size of height and width')
     parser.add_argument(
         '--output-names',
@@ -40,34 +39,6 @@ def parse_args():
     parser.add_argument('--batch-size', type=int, default=1, help='Batch size')
     parser.add_argument(
         '--device', default='cuda:1', help='Device used for inference')
-    parser.add_argument(
-        '--simplify',
-        action='store_true',
-        help='Simplify onnx model by onnx-sim')
-    parser.add_argument(
-        '--opset', type=int, default=11, help='ONNX opset version')
-    parser.add_argument(
-        '--backend', type=int, default=1, help='Backend for export onnx')
-    parser.add_argument(
-        '--pre-topk',
-        type=int,
-        default=1000,
-        help='Postprocess pre topk bboxes feed into NMS')
-    parser.add_argument(
-        '--keep-topk',
-        type=int,
-        default=100,
-        help='Postprocess keep topk bboxes out of NMS')
-    parser.add_argument(
-        '--iou-threshold',
-        type=float,
-        default=0.65,
-        help='IoU threshold for NMS')
-    parser.add_argument(
-        '--score-threshold',
-        type=float,
-        default=0.25,
-        help='Score threshold for NMS')
     args = parser.parse_args()
     args.img_size *= 2 if len(args.img_size) == 1 else 1
     return args
@@ -82,8 +53,6 @@ def build_model_from_cfg(config_path, checkpoint_path, device):
 def main():
     args = parse_args()
     register_all_modules()
-
-    mkdir_or_exist(args.work_dir)
 
     if args.model_only:
         postprocess_cfg = None
@@ -103,43 +72,10 @@ def main():
     deploy_model.eval()
 
     fake_input = torch.randn(args.batch_size, 3,
-                             *args.img_size).to(args.device)
-    # dry run
-    deploy_model(fake_input)
+                             *args.img_size)
 
-    save_onnx_path = os.path.join(args.work_dir, 'end2end.onnx')
-    # export onnx
-    with BytesIO() as f:
-        torch.onnx.export(
-            deploy_model,
-            fake_input,
-            f,
-            input_names=['data'],
-            output_names=output_names,
-            opset_version=args.opset)
-        f.seek(0)
-        onnx_model = onnx.load(f)
-        onnx.checker.check_model(onnx_model)
-
-        # Fix tensorrt onnx output shape, just for view
-        if args.backend in (2, 3):
-            shapes = [
-                args.batch_size, 1, args.batch_size, args.keep_topk, 4,
-                args.batch_size, args.keep_topk, args.batch_size,
-                args.keep_topk
-            ]
-            for i in onnx_model.graph.output:
-                for j in i.type.tensor_type.shape.dim:
-                    j.dim_param = str(shapes.pop(0))
-    if args.simplify:
-        try:
-            import onnxsim
-            onnx_model, check = onnxsim.simplify(onnx_model)
-            assert check, 'assert check failed'
-        except Exception as e:
-            print(f'Simplify failure: {e}')
-    onnx.save(onnx_model, save_onnx_path)
-    print(f'ONNX export success, save into {save_onnx_path}')
+    trace_model = torch.jit.trace(deploy_model.cpu().eval(), (fake_input))
+    torch.jit.save(trace_model, args.work_dir)
 
 
 if __name__ == '__main__':
