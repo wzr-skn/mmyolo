@@ -10,7 +10,8 @@ from ..registry import TASK_UTILS
 
 @COLLATE_FUNCTIONS.register_module()
 def yolov5_collate(data_batch: Sequence,
-                   use_ms_training: bool = False) -> dict:
+                   use_ms_training: bool = False,
+                   **kwargs) -> dict:
     """Rewrite collate_fn to get faster training speed.
 
     Args:

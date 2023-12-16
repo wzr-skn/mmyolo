@@ -6,7 +6,7 @@ dataset_type = 'YOLOv5CocoDataset'
 
 num_last_epochs = 10
 max_epochs = 120
-num_classes = 6
+num_classes = 4
 
 img_scale = (640, 640)  # width, height
 test_img_scale = (1024, 576)  # width, height
@@ -19,12 +19,6 @@ base_lr = 0.01
 
 metainfo = {
     'classes': ('person', 'bottle', 'chair', 'potted plant', ),
-    # 'palette': [
-    #     (220, 20, 60),
-    # ]
-}
-test_metainfo = {
-    'classes': ('person', 'bottle', 'chair', 'potted plant', 'fake_person', 'camera', ),
     # 'palette': [
     #     (220, 20, 60),
     # ]
@@ -180,14 +174,14 @@ pre_transform = [
 ]
 
 last_transform = [
-    dict(type='Load_4PasetImages',
-         class_names=["person", "chair", "fake_person", "camera"],
-         base_cls_num=3,
-         image_root="/home/ubuntu/mmyolo/data_paste_add/",
-         prob_of_copy=[0.2, 0.1, 0.1, 0.1],
-         ICON_FACTOR=[0.1, 0.3],
-         to_float32=True,
-         ),
+    # dict(type='Load_4PasetImages',
+    #      class_names=["person", "chair", "fake_person", "camera"],
+    #      base_cls_num=3,
+    #      image_root="/home/ubuntu/mmyolo/data_paste_add/",
+    #      prob_of_copy=[0.2, 0.1, 0.1, 0.1],
+    #      ICON_FACTOR=[0.1, 0.3],
+    #      to_float32=True,
+    #      ),
     dict(
         type='mmdet.Albu',
         transforms=albu_train_transform,
@@ -287,46 +281,17 @@ train_pipeline_stage2 = [
     dict(type='mmdet.PackDetInputs')
 ]"""
 
-coco_dataset = dict(
-    type=dataset_type,
-    data_root=data_root,
-    metainfo=metainfo,
-    ann_file='coco/coco_half_person_80_train.json',
-    data_prefix=dict(img='coco/train2017/images'),
-    filter_cfg=dict(filter_empty_gt=False, min_size=32),
-    pipeline=train_pipeline)
-focus_view_dataset = dict(
-    type=dataset_type,
-    data_root=data_root,
-    metainfo=metainfo,
-    ann_file='custom_body_dataset/focus_view.json',
-    data_prefix=dict(img='custom_body_dataset/focus_view'),
-    filter_cfg=dict(filter_empty_gt=False, min_size=32),
-    pipeline=train_pipeline)
-full_view_dataset = dict(
-    type=dataset_type,
-    data_root=data_root,
-    metainfo=metainfo,
-    ann_file='custom_body_dataset/full_view.json',
-    data_prefix=dict(img='custom_body_dataset/full_view'),
-    filter_cfg=dict(filter_empty_gt=False, min_size=32),
-    pipeline=train_pipeline)
 train_dataloader = dict(
     batch_size=train_batch_size_per_gpu,
     # collate_fn=dict(type='yolov5_collate', use_ms_training=True),
     collate_fn=dict(type='yolov5_collate'),
-    dataset=dict(_delete_=True, type='ConcatDataset', datasets=[coco_dataset, focus_view_dataset, full_view_dataset]))
-# train_dataloader = dict(
-#     batch_size=train_batch_size_per_gpu,
-#     collate_fn=dict(type='yolov5_collate', use_ms_training=True),
-#     # collate_fn=dict(type='yolov5_collate'),
-#     dataset=dict(
-#         data_root=data_root,
-#         metainfo=metainfo,
-#         ann_file='coco/coco_half_person_80_train.json',
-#         data_prefix=dict(img='coco/train2017/images'),
-#         # filter_cfg=dict(filter_empty_gt=True, min_size=32),
-#         pipeline=train_pipeline))
+    dataset=dict(
+        data_root=data_root,
+        metainfo=metainfo,
+        ann_file='coco/coco_half_person_80_train.json',
+        data_prefix=dict(img='coco/train2017/images'),
+        # filter_cfg=dict(filter_empty_gt=True, min_size=32),
+        pipeline=train_pipeline))
 
 test_pipeline = [
     dict(type='LoadImageFromFile', file_client_args=_base_.file_client_args),
@@ -346,7 +311,7 @@ test_pipeline = [
 val_dataloader = dict(
     dataset=dict(
         data_root=data_root,
-        metainfo=test_metainfo,
+        metainfo=metainfo,
         ann_file='coco/coco_half_person_80_val.json',
         data_prefix=dict(img='coco/val2017/images'),
         pipeline=test_pipeline,
@@ -435,7 +400,7 @@ test_evaluator = val_evaluator
 train_cfg = dict(
     type='EpochBasedTrainLoop',
     max_epochs=max_epochs,
-    val_interval=3,
+    val_interval=1,
     dynamic_intervals=[(max_epochs - num_last_epochs, 1)])
 val_cfg = dict(type='ValLoop')
 test_cfg = dict(type='TestLoop')

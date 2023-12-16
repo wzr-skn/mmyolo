@@ -1352,6 +1352,7 @@ class Load_4PasetImages(MMCV_LoadImageFromFile):
                        max_paste_num=3,
                        prob_of_copy=[0.1, 0.1, 0.1, 0.1],
                        ICON_FACTOR=[0.1, 0.2],
+                       file_client_args=dict(backend='disk'),
                        **kwargs):
         # TODO: add more filter options
         assert isinstance(class_names, list)
@@ -1370,7 +1371,7 @@ class Load_4PasetImages(MMCV_LoadImageFromFile):
         self.prob = prob
         self.max_paste_num = max_paste_num
         self.prob_of_copy = prob_of_copy
-        super(Load_4PasetImages, self).__init__(**kwargs)
+        super(Load_4PasetImages, self).__init__(file_client_args=file_client_args, **kwargs)
         self.pipline = self.Compose([self.RandomRotate(rotate=20, prob=0.5),
                                      # self.RandomRadiusBlur(radius=3, prob=0.1, std=0),
                                      # self.HomoGrapy(),
@@ -1571,15 +1572,19 @@ class Load_4PasetImages(MMCV_LoadImageFromFile):
                 continue
             paste_num = np.random.randint(0, self.max_paste_num) #随机粘贴几张图片
             for _ in range(paste_num):
-                if self.file_client is None:
-                    self.file_client = mmcv.FileClient(**self.file_client_args)
 
                 paste_index = np.random.randint(0, num_image)
                 image_name = image_paths[paste_index]
                 filename = osp.join(image_root, image_name)
 
-                img_bytes = self.file_client.get(filename)
-                paste_image = mmcv.imfrombytes(img_bytes, flag=self.color_type)
+                if self.file_client_args is not None:
+                    import mmengine.fileio as fileio
+                    file_client = fileio.FileClient.infer_client(
+                        self.file_client_args, filename)
+                    img_bytes = file_client.get(filename)
+                paste_image = mmcv.imfrombytes(
+                    img_bytes, flag=self.color_type, backend=self.imdecode_backend)
+
                 if self.to_float32:
                     paste_image = paste_image.astype(np.float32)
                     if class_name != 'person' or 'chair':
@@ -1589,7 +1594,7 @@ class Load_4PasetImages(MMCV_LoadImageFromFile):
 
                 new_bbox = self.Embedding(img, paste_image, results['gt_bboxes'].tensor.numpy())
 
-                if new_bbox.any() is False:
+                if not new_bbox.any():
                     continue
 
                 else:

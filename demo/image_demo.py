@@ -24,7 +24,7 @@ def parse_args():
     parser.add_argument(
         '--out-dir', default='./output', help='Path to output file')
     parser.add_argument(
-        '--device', default='cuda:4', help='Device used for inference')
+        '--device', default='cuda:0', help='Device used for inference')
     parser.add_argument(
         '--show', action='store_true', help='Show the detection results')
     parser.add_argument(
@@ -36,7 +36,7 @@ def parse_args():
         action='store_true',
         help='Whether to use test time augmentation')
     parser.add_argument(
-        '--score-thr', type=float, default=0.1, help='Bbox score threshold')
+        '--score-thr', type=float, default=0.2, help='Bbox score threshold')
     parser.add_argument(
         '--class-name',
         nargs='+',

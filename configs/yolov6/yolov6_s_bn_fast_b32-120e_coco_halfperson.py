@@ -9,9 +9,9 @@ num_classes = 4
 
 img_scale = (640, 640)  # width, height
 test_img_scale = (1024, 576)  # width, height
-deepen_factor = 0.6
-widen_factor = 0.75
-affine_scale = 0.9
+deepen_factor = 0.33
+widen_factor = 0.5
+affine_scale = 0.5
 train_batch_size_per_gpu = 42
 
 base_lr = 0.01
@@ -140,7 +140,12 @@ default_hooks = dict(
         type='YOLOv5ParamSchedulerHook',
         scheduler_type='cosine',
         lr_factor=0.01,
-        max_epochs=max_epochs))
+        max_epochs=max_epochs),
+    checkpoint=dict(
+        type='CheckpointHook',
+        interval=1,
+        max_keep_ckpts=3,
+        save_best='auto'))
 
 custom_hooks = [
     dict(

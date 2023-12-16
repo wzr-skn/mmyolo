@@ -13,7 +13,7 @@ test_img_scale = (1024, 576)  # width, height
 deepen_factor = 0.27
 widen_factor = 0.375
 affine_scale = 0.5
-train_batch_size_per_gpu = 128
+train_batch_size_per_gpu = 8
 
 base_lr = 0.01
 
@@ -36,21 +36,26 @@ batch_shapes_cfg = None
 model = dict(
     data_preprocessor=dict(
         # use multi+_scale training
-        # type='PPYOLOEDetDataPreprocessor',
-        # pad_size_divisor=32,
-        # batch_augments=[
-        #     dict(
-        #         type='PPYOLOEBatchRandomResize',
-        #         random_size_range=(320, 1280),
-        #         interval=1,
-        #         size_divisor=32,
-        #         random_interp=True,
-        #         keep_ratio=False)
-        # ],
+        type='PPYOLOEDetDataPreprocessor',
+        pad_size_divisor=32,
+        batch_augments=[
+            dict(
+                type='PPYOLOEBatchRandomResize',
+                random_size_range=(320, 1280),
+                interval=1,
+                size_divisor=32,
+                random_interp=True,
+                keep_ratio=False)
+        ],
         mean=[127.5, 127.5, 127.5],
         std=[128, 128, 128],
         bgr_to_rgb=True),
-    backbone=dict(arch='P5_no_spp_shallow', deepen_factor=deepen_factor, widen_factor=widen_factor),
+    backbone=dict(
+        _delete_=True,
+        type='mmpretrain.RepLKNet',
+        arch='31t_shallow',
+        out_indices=(1, 2, 3, ),
+    ),
     # neck的num_csp_blocks参数也随着backbone层数减少而减少
     neck=dict(deepen_factor=deepen_factor, widen_factor=widen_factor, num_csp_blocks=9,),
     bbox_head=dict(
@@ -313,8 +318,8 @@ full_view_dataset = dict(
     pipeline=train_pipeline)
 train_dataloader = dict(
     batch_size=train_batch_size_per_gpu,
-    # collate_fn=dict(type='yolov5_collate', use_ms_training=True),
-    collate_fn=dict(type='yolov5_collate'),
+    collate_fn=dict(type='yolov5_collate', use_ms_training=True),
+    # collate_fn=dict(type='yolov5_collate'),
     dataset=dict(_delete_=True, type='ConcatDataset', datasets=[coco_dataset, focus_view_dataset, full_view_dataset]))
 # train_dataloader = dict(
 #     batch_size=train_batch_size_per_gpu,
@@ -435,10 +440,10 @@ test_evaluator = val_evaluator
 train_cfg = dict(
     type='EpochBasedTrainLoop',
     max_epochs=max_epochs,
-    val_interval=3,
+    val_interval=1,
     dynamic_intervals=[(max_epochs - num_last_epochs, 1)])
 val_cfg = dict(type='ValLoop')
 test_cfg = dict(type='TestLoop')
 
-load_from = './work_dirs/body_detect/yolov6_t_shallow_s_rtmloss_assigner_coco_halfperson_4cls/epoch_120.pth'
-work_dir = './work_dirs/body_detect/val_lr_yolov6_t_shallow_s_medium_multi_scale_rtmloss_assigner_v8_data_aug_coco_halfperson_6cls'
+load_from = './work_dirs/body_detect/yolov6_31t_shallow_replknet_multi_scale_rtmloss_assigner_v8_data_aug_coco_halfperson_6cls/epoch_120.pth'
+work_dir = './work_dirs/body_detect/yolov6_31t_shallow_replknet_multi_scale_rtmloss_assigner_v8_data_aug_coco_halfperson_6cls_60e_load_from'

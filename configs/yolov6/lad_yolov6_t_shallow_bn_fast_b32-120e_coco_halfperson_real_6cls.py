@@ -5,7 +5,7 @@ data_root = '/media/traindata/'
 dataset_type = 'YOLOv5CocoDataset'
 
 num_last_epochs = 10
-max_epochs = 120
+max_epochs = 90
 num_classes = 6
 
 img_scale = (640, 640)  # width, height
@@ -13,7 +13,7 @@ test_img_scale = (1024, 576)  # width, height
 deepen_factor = 0.27
 widen_factor = 0.375
 affine_scale = 0.5
-train_batch_size_per_gpu = 128
+train_batch_size_per_gpu = 160
 
 base_lr = 0.01
 
@@ -34,6 +34,38 @@ test_metainfo = {
 batch_shapes_cfg = None
 
 model = dict(
+    type='LAD',
+    teacher_backbone=dict(
+        type='mmpretrain.RepLKNet', arch='31t_shallow', out_indices=(1, 2, 3)),
+    teacher_neck=dict(
+        type='YOLOv6RepPAFPN',
+        deepen_factor=0.27,
+        widen_factor=0.375,
+        in_channels=[256, 512, 1024],
+        out_channels=[128, 256, 512],
+        num_csp_blocks=9,
+        norm_cfg=dict(type='BN', momentum=0.03, eps=0.001),
+        act_cfg=dict(type='ReLU', inplace=True)),
+    teacher_bbox_head=dict(
+        type='LAD_RTMDetHead',
+        head_module=dict(
+            type='YOLOv6HeadModule',
+            num_classes=6,
+            in_channels=[128, 256, 512],
+            widen_factor=0.375,
+            norm_cfg=dict(type='BN', momentum=0.03, eps=0.001),
+            act_cfg=dict(type='ReLU', inplace=True),
+            featmap_strides=[8, 16, 32]),
+        loss_bbox=dict(type='mmdet.GIoULoss', loss_weight=2.0),
+        prior_generator=dict(
+            type='mmdet.MlvlPointGenerator', offset=0, strides=[8, 16, 32]),
+        bbox_coder=dict(type='DistancePointBBoxCoder'),
+        loss_cls=dict(
+            type='mmdet.QualityFocalLoss',
+            use_sigmoid=True,
+            beta=2.0,
+            loss_weight=1.0)),
+    teacher_ckpt='/home/ubuntu/mmyolo/work_dirs/body_detect/yolov6_31t_shallow_replknet_multi_scale_rtmloss_assigner_v8_data_aug_coco_halfperson_6cls/epoch_120.pth',
     data_preprocessor=dict(
         # use multi+_scale training
         # type='PPYOLOEDetDataPreprocessor',
@@ -59,7 +91,7 @@ model = dict(
         # loss_bbox=dict(iou_mode='siou'),
 
         # rtm head
-        type='RTMDetHead',
+        type='LAD_RTMDetHead',
         head_module=dict(num_classes=num_classes, widen_factor=widen_factor, act_cfg=dict(type='ReLU', inplace=True)),
         prior_generator=dict(
             type='mmdet.MlvlPointGenerator', offset=0, strides=[8, 16, 32]),
@@ -435,10 +467,10 @@ test_evaluator = val_evaluator
 train_cfg = dict(
     type='EpochBasedTrainLoop',
     max_epochs=max_epochs,
-    val_interval=3,
+    val_interval=1,
     dynamic_intervals=[(max_epochs - num_last_epochs, 1)])
 val_cfg = dict(type='ValLoop')
 test_cfg = dict(type='TestLoop')
 
-load_from = './work_dirs/body_detect/yolov6_t_shallow_s_rtmloss_assigner_coco_halfperson_4cls/epoch_120.pth'
-work_dir = './work_dirs/body_detect/val_lr_yolov6_t_shallow_s_medium_multi_scale_rtmloss_assigner_v8_data_aug_coco_halfperson_6cls'
+load_from = './work_dirs/body_detect/yolov6_t_shallow_s_multi_scale_rtmloss_assigner_v8_data_aug_coco_halfperson_6cls/epoch_300.pth'
+work_dir = './work_dirs/body_detect/lad_yolov6_31t_shallow_replknet_distill_yolov6_t_shallow_s_no_multi_scale_v8_dataaug_coco_halfperson_6cls'

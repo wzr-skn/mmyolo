@@ -81,3 +81,75 @@ Models:
         Metrics:
           box AP: 51.0
     Weights: https://download.openmmlab.com/mmyolo/v0/yolov6/yolov6_l_syncbn_fast_8xb32-300e_coco/yolov6_l_syncbn_fast_8xb32-300e_coco_20221109_183156-91e3c447.pth
+  - Name: yolov6_s_bn_fast_b32-120e_coco_halfperson
+    In Collection: YOLOv6
+    Config: configs/yolov6/yolov6_s_bn_fast_b32-120e_coco_halfperson.py
+    Metadata:
+      Training Memory (GB): 20.86
+      Epochs: 300
+    Results:
+      - Task: Object Detection
+        Dataset: COCO
+        Metrics:
+          box AP: 51.0
+    Weights: /home/ubuntu/mmyolo/work_dirs/body_detect/yolov6_s_coco_halfperson/epoch_120.pth
+  - Name: lad_yolov6_t_shallow_bn_fast_b32-120e_coco_halfperson_6cls
+    In Collection: YOLOv6
+    Config: configs/yolov6/lad_yolov6_t_shallow_bn_fast_b32-120e_coco_halfperson_6cls.py
+    Metadata:
+      Training Memory (GB): 20.86
+      Epochs: 300
+    Results:
+      - Task: Object Detection
+        Dataset: COCO
+        Metrics:
+          box AP: 51.0
+    Weights: None
+  - Name: yolov6_t_shallow_bn_fast_b32-120e_coco_halfperson_4cls
+    In Collection: YOLOv6
+    Config: configs/yolov6/yolov6_t_shallow_bn_fast_b32-120e_coco_halfperson_4cls.py
+    Metadata:
+      Training Memory (GB): 20.86
+      Epochs: 300
+    Results:
+      - Task: Object Detection
+        Dataset: COCO
+        Metrics:
+          box AP: 51.0
+    Weights: None
+  - Name: yolov6_t_shallow_bn_fast_b32-120e_coco_halfperson_6cls
+    In Collection: YOLOv6
+    Config: configs/yolov6/yolov6_t_shallow_bn_fast_b32-120e_coco_halfperson_6cls.py
+    Metadata:
+      Training Memory (GB): 20.86
+      Epochs: 300
+    Results:
+      - Task: Object Detection
+        Dataset: COCO
+        Metrics:
+          box AP: 51.0
+    Weights: /home/ubuntu/mmyolo/work_dirs/body_detect/yolov6_t_shallow_s_multi_scale_rtmloss_assigner_v8_data_aug_coco_halfperson_6cls/epoch_300.pth
+  - Name: yolov6_replknet_multi_scale_rtmloss_assigner_v8data_aug_6cls
+    In Collection: YOLOv6
+    Config: configs/yolov6/yolov6_replknet_multi_scale_rtmloss_assigner_v8data_aug_6cls.py
+    Metadata:
+      Training Memory (GB): 20.86
+      Epochs: 300
+    Results:
+      - Task: Object Detection
+        Dataset: COCO
+        Metrics:
+          box AP: 51.0
+    Weights: /home/ubuntu/mmyolo/work_dirs/body_detect/yolov6_31t_shallow_replknet_multi_scale_rtmloss_assigner_v8_data_aug_coco_halfperson_6cls/epoch_120.pth
+  - Name: yolov6_s_super_shallow_bn_fast_b32-120e_coco_halfperson_4cls
+    In Collection: YOLOv6
+    Config: configs/yolov6/yolov6_s_super_shallow_bn_fast_b32-120e_coco_halfperson_4cls.py
+    Metadata:
+      Training Memory (GB): 20.86
+      Epochs: 300
+    Results:
+      - Task: Object Detection
+        Dataset: COCO
+        Metrics:
+          box AP: 51.0
+    Weights: /home/ubuntu/mmrazor/work_dirs/body_detect/cwd_yolov6_s_yolov6_s_super_shallow_coco_halfperson_4cls/epoch_120.pth

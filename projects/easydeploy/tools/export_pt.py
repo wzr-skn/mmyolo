@@ -30,7 +30,7 @@ def parse_args():
         '--img-size',
         nargs='+',
         type=int,
-        default=[576, 1024],
+        default=[512, 928],
         help='Image size of height and width')
     parser.add_argument(
         '--output-names',
